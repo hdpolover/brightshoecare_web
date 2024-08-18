@@ -1,3 +1,58 @@
+<style type="text/css">
+  .progress-container {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    max-width: 800px;
+    position: relative;
+  }
+
+  .step {
+    text-align: center;
+    position: relative;
+    flex: 1;
+  }
+
+  .step .circle {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    background-color: #ddd;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .step .label {
+    font-size: 12px;
+    color: #333;
+  }
+
+  .step.active .circle {
+    background-color: #4caf50;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background-color: #ddd;
+    z-index: -1;
+  }
+
+  .step.active:not(:last-child)::after {
+    background-color: #4caf50;
+  }
+</style>
+
+
 <div class="container-fluid">
   <!-- Page Heading -->
   <h1 class="h3 mb-5 text-gray-800">Overview Data <?= $section ?></h1>
@@ -18,22 +73,57 @@
           <thead>
             <tr>
               <th width="20px">No. Transaksi</th>
-              <th width="100px">Tanggal Pemesanan</th>
-              <th width="100px" class="text-center">Aksi</th>
+              <th>Tanggal Pemesanan</th>
+              <th style="text-align: center;">Status Pesanan</th>
+              <th>Status Pembayaran</th>
+              <th class="text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <?php
             foreach ($tampil as $t) {
               $id = str_replace(['=', '+', '/'], ['-', '_', '~'], $this->encryption->encrypt($t->id_transaksi));
+
+              foreach ($pembayaran as $p) {
+                if ($p->id_transaksi == $t->id_transaksi) {
+                  $status_pembayaran = $p->status;
+                }
+              }
+
+              foreach ($status as $s) {
+                if ($s->id_transaksi == $t->id_transaksi) {
+                  $status_pesanan = $s;
+                }
+              }
             ?>
               <tr>
                 <td><?= $t->no_transaksi ?></td>
                 <td><?= $t->tgl_dibuat ?></td>
                 <td>
-                  <button class="btn btn-sm btn-info viewDetail" title="Detail" id="viewDetail" value="<?= $id ?>"><i class="fa fa-eye"></i></button>
-                  <a href="<?= base_url('admin/transaksi/cetak/' . $id) ?>" class="btn btn-sm btn-primary" title="Print"><i class="fa fa-print"></i></a>
-                  <a href="<?= base_url('admin/transaksi/delete/' . $id) ?>" class="btn btn-sm btn-danger" title="Print" title="Hapus" data-target="#modalDelete" data-toggle="modal"><i class="fa fa-trash"></i></a>
+                  <div class="progress-container">
+                    <div class="step <?= ($status_pesanan->dibuat == 1) ? 'active' : ''; ?>">
+                      <div class="circle">1</div>
+                      <div class="label">Menunggu</div>
+                    </div>
+                    <div class="step <?= ($status_pesanan->menunggu == 1) ? 'active' : ''; ?>">
+                      <div class="circle">2</div>
+                      <div class="label">Proses</div>
+                    </div>
+                    <div class="step <?= ($status_pesanan->siap == 1) ? 'active' : ''; ?>">
+                      <div class="circle">3</div>
+                      <div class="label">Siap </div>
+                    </div>
+                    <div class="step <?= ($status_pesanan->selesai == 1) ? 'active' : ''; ?>">
+                      <div class="circle">4</div>
+                      <div class="label">Selesai</div>
+                    </div>
+                  </div>
+                </td>
+                <td><?= ($status_pembayaran == 1) ? 'Lunas' : 'Belum Lunas'; ?></td>
+                <td>
+                  <!-- <button class="btn btn-sm btn-info viewDetail" title="Detail" id="viewDetail" value="<?= $id ?>"><i class="fa fa-eye"></i></button> -->
+                  <a href="<?= base_url('admin/transaksi/detail/' . $id) ?>" class="btn btn-sm btn-primary" title="Detail"><i class="fa fa-eye"></i></a>
+                 <!-- <a href="<?= base_url('admin/transaksi/delete/' . $id) ?>" class="btn btn-sm btn-danger" title="Print" title="Hapus" data-target="#modalDelete" data-toggle="modal"><i class="fa fa-trash"></i></a> -->
                 </td>
               </tr>
             <?php
@@ -59,7 +149,7 @@
         <div class="modal-body">
           <table class="table table-bordered table-hover">
             <tr>
-              <td class="col-sm-3"><strong>No Struk</strong></td>
+              <td class="col-sm-3"><strong>No. Transaksi</strong></td>
               <td class="col-sm-9"> <span id="id_transaksi"></span></td>
             </tr>
             <tr>

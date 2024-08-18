@@ -22,6 +22,25 @@ class Validation extends CI_Model
 		];
 	}
 
+	public function val_login_pelanggan()
+	{
+		return [
+
+			[
+				'field'	=> 'email',
+				'label'	=> 'Email',
+				'rules'	=> 'required|rtrim',
+				'errors' => ['required' => '<b>%s</b> harus diisi.'],
+			],
+			[
+				'field'	=> 'password',
+				'label'	=> 'Password',
+				'rules'	=> 'required|rtrim',
+				'errors' => ['required' => '<b>%s</b> harus diisi.']
+			]
+		];
+	}
+
 	public function val_user()
 	{
 		return [

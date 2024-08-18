@@ -73,12 +73,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+$online_pw = 'qaAnHSthfHi9xSx';
+$online_username = 'u1437096_admin_brightshoecare';
+$online_db = 'u1437096_brightshoecare_web_db';
+
+$online = false;
+
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'laundry_web_db',
+	'username' => $online == true ? $online_username : 'root',
+	'password' => $online == true ? $online_pw : '',
+	'database' => $online == true ? $online_db : 'laundry_web_db',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

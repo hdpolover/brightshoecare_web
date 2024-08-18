@@ -5,7 +5,7 @@ class Tarif extends CI_Controller
 {
 
 	var $table 		= 'tarif';
-	var $folder 	= 'tarif/';
+	var $folder 	= 'layanan/';
 	var $section 	= 'Tarif Dan Paket';
 	private $nama;
 	private $waktu;

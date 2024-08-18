@@ -130,7 +130,7 @@ $query = $this->db->query("SELECT * FROM `pelanggan` WHERE `username` = '{$usern
                             if ($level == 1) {
                               $posisi = 'Admin';
                             } else {
-                              $posisi = 'Karyawan';
+                              $posisi = 'Pelanggan';
                             }
 
                             echo $posisi ?></center>
@@ -178,7 +178,7 @@ $query = $this->db->query("SELECT * FROM `pelanggan` WHERE `username` = '{$usern
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Laundry-In 2022 - Kelompok 4</span>
+            <span>Copyright &copy; BrightShoeCare 2024</span>
           </div>
         </div>
       </footer>
@@ -200,15 +200,15 @@ $query = $this->db->query("SELECT * FROM `pelanggan` WHERE `username` = '{$usern
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Yakin untuk keluar?</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
+            <span aria-hidden="true">X</span>
           </button>
         </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-body">Pilih "Keluar" untuk mengakhiri sesi login Anda.</div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="<?= base_url('admin/auth/logout') ?>">Logout</a>
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+          <a class="btn btn-primary" href="<?= base_url('admin/auth/logout') ?>">Keluar</a>
         </div>
       </div>
     </div>

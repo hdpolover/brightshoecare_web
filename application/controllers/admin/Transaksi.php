@@ -25,7 +25,9 @@ class Transaksi extends CI_Controller
 		$data = [
 			'content'	=> $this->folder . ('view'),
 			'section'	=> $this->section,
-			'tampil'	=> $this->model->get_all($this->table)->result()
+			'tampil'	=> $this->model->get_all($this->table)->result(),
+			'status'	=> $this->model->get_all('transaksi_status1')->result(),
+			'pembayaran' => $this->model->get_all('pembayaran')->result(),
 		];
 
 		$this->load->view('template/template', $data);
@@ -36,27 +38,23 @@ class Transaksi extends CI_Controller
 		if ($this->session->userdata('masuk') != TRUE) {
 			redirect(base_url(''));
 		};
+
 		$id = str_replace(['-', '_', '~'], ['=', '+', '/'], $id);
 		$id = $this->encryption->decrypt($id);
-		$getOne = $this->model->get_by($this->table, 'id_transaksi', $id)->row_array();
+		$transaksi = $this->model->get_by($this->table, 'id_transaksi', $id)->row();
+		$detail_transaksi = $this->model->get_by('transaksi_detail1', 'id_transaksi', $id)->result();
+		$pelanggan = $this->model->get_by('pelanggan', 'id', $transaksi->id_pelanggan)->row();
+		$status_pesanan = $this->model->get_by('transaksi_status1', 'id_transaksi', $id)->row();
 
-		if ($getOne) {
-			$getDetail = $this->model->get_by('transaksi_detail', 'id_transaksi_d', $id)->result();
-			$getOne['detail'] = $getDetail;
-			$data = [
-				"data" 		=> $getOne,
-				"success"	=> true,
-				"message"	=> "Data detail transaksi"
-			];
-		} else {
-			$data = [
-				"data" 		=> "",
-				"success"	=> false,
-				"message"	=> "Data detail transaksi"
-			];
-		}
+		$data = [
+			'content'	=> $this->folder . ('detail'),
+			'transaksi'	=> $transaksi,
+			'pelanggan'	=> $pelanggan,
+			'status_pesanan' => $status_pesanan,
+			'detail_transaksi' => $detail_transaksi,
+		];
 
-		echo json_encode($data);
+		$this->load->view('template/template', $data);
 	}
 
 	public function tambah()
@@ -118,6 +116,9 @@ class Transaksi extends CI_Controller
 
 					// Insert data into transaksi_detail1 table
 					$this->model->save("transaksi_detail1", $data_detail);
+
+					// Insert status
+					$this->insert_status($insert_id);
 				}
 			} else {
 				// Get service details from the database
@@ -135,6 +136,9 @@ class Transaksi extends CI_Controller
 
 				// Insert data into transaksi_detail1 table
 				$this->model->save("transaksi_detail1", $data_detail);
+
+				// Insert status
+				$this->insert_status($insert_id);
 			}
 
 			$this->session->set_flashdata('flash', '<div class="alert alert-success alert-dismissible fade show" role="alert">Pesanan berhasil dibuat.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
@@ -143,6 +147,20 @@ class Transaksi extends CI_Controller
 			$this->session->set_flashdata('flash', '<div class="alert alert-danger alert-dismissible fade show" role="alert"><b>Terjadi kesalahan!</b> Pesananan gagal dibuat.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
 			redirect('admin/transaksi');
 		}
+	}
+
+	public function insert_status($id_transaksi) {
+		$data_detail = array(
+			'id_transaksi' => $id_transaksi,
+			'dibuat' => 1,
+			'menunggu' => 0,
+			'proses' => 0,
+			'siap' => 0,
+			'selesai' => 0,
+		);
+
+		// Insert data into transaksi_detail1 table
+		$this->model->save("transaksi_status1", $data_detail);
 	}
 
 	public function bayar($id_transaksi = null)
