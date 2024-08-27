@@ -56,16 +56,22 @@
 <div class="container-fluid">
     <!-- Page Heading -->
     <h1 class="h3 mb-5 text-gray-800">Detail Transaksi</h1>
+    <!-- create a row for buttons here and align to the right -->
+    <div class="row mb-3">
+        <!-- give space for the buttons -->
+        <div class="col">
+            <a class="btn btn-sm btn-primary text-light float-right" onclick="saveAsPDF('toPrint')"><i class="fa fa-print"></i> <b>Cetak Transaksi</b></a>
+            <a class="btn btn-sm btn-warning text-light float-right mr-2" data-target="#exampleModalLong<?= $transaksi->id_transaksi ?>" data-toggle="modal"><i class=" fa fa-edit"></i> <b>Ubah Status Pesanan</b></a>
+        </div>
+    </div>
     <?= $this->session->flashdata('flash') ?>
     <!-- DataTales Example -->
-    <div class="card shadow mb-4">
+    <div id="toPrint" class="card shadow mb-4">
         <div class="card-header py-3 d-flex">
             <div>
-                <span class="m-0 font-weight-bold text-primary">Transaksi #<?= $transaksi->no_transaksi; ?></span>
+                <span id="file_name" class="m-0 font-weight-bold text-primary">Transaksi #<?= $transaksi->no_transaksi; ?></span>
             </div>
-            <div class="ml-auto">
-                <a class="btn btn-sm btn-primary text-light" href="<?= base_url('admin/transaksi/tambah') ?>"><i class="fa fa-plus"></i> <b>Tambah Transaksi</b></a>
-            </div>
+
         </div>
         <div class="card-body">
             <table class="table table-bordered table-hover">
@@ -141,35 +147,37 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>Status Pembayaran</strong></td>
+                    <td><strong>Detail Pembayaran</strong></td>
                     <td><span>
                             <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Metode Pembayaran</th>
-                                        <th>Status</th>
-                                        <th>Bukti Pembayaran</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $no = 1;
-                                    foreach ($pembayaran as $bayar) : ?>
-                                        <tr>
-                                            <td><?= $no++; ?></td>
-                                            <td><?= $bayar->metode; ?></td>
-                                            <td><?= ($bayar->status == 1) ? 'Lunas' : 'Belum Lunas'; ?></td>
-                                            <td>
-                                                <?php if ($bayar->bukti_pembayaran != null) : ?>
-                                                    <a href="<?= base_url('assets/bukti_pembayaran/' . $bayar->bukti_pembayaran); ?>" target="_blank">Lihat Bukti Pembayaran</a>
-                                                <?php else : ?>
-                                                    <span>Tidak ada bukti pembayaran</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
+                                <tr>
+                                    <td><strong>No. Invoice Pembayaran</strong></td>
+                                    <td><span><?= $pembayaran->no_invoice; ?></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tanggal Pembayaran</strong></td>
+                                    <td><span><?= $pembayaran->tgl_bayar; ?></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Metode Pembayaran</strong></td>
+                                    <?php $nama_bayar = $this->model->get_by('metode_bayar', 'id_metode_bayar', $pembayaran->id_metode_bayar)->row()->nama; ?>
+                                    <td><span><?= $nama_bayar ?></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status Pembayaran</strong></td>
+                                    <td><span><?= ($pembayaran->status == 1) ? 'Lunas' : 'Belum Lunas'; ?></span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bukti Pembayaran</strong></td>
+                                    <td><span>
+                                            <?php if ($pembayaran->bukti_bayar != null) : ?>
+                                                <img src="<?= base_url('' . $pembayaran->bukti_bayar); ?>" alt="Bukti Pembayaran" width="500px">
+                                            <?php else : ?>
+                                                <span>Tidak ada bukti pembayaran</span>
+                                            <?php endif; ?>
+                                        </span></td>
+                                </tr>
+                            </table>
                         </span></td>
                 </tr>
 
@@ -178,3 +186,101 @@
         </div>
 
     </div>
+
+</div>
+
+<div class="modal fade" id="exampleModalLong<?= $transaksi->id_transaksi ?>" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold" id="exampleModalLabel">Ubah Status Pesanan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="<?= base_url('admin/transaksi/ubah_status') ?>">
+                <div class="modal-body">
+                    <!-- create a dropdown for the status here -->
+                    <div class="form-group">
+                        <input type="hidden" name="id" value="<?= $transaksi->id_transaksi ?>">
+                        <label for="status">Status Pesanan</label>
+                        <select name="status" class="form-control" id="status">
+                            <option value="1">Dibuat</option>
+                            <option value="2">Menunggu</option>
+                            <option value="3">Proses</option>
+                            <option value="4">Siap</option>
+                            <option value="5">Selesai</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-sm btn-info" id="add">Update</button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+<script>
+    function saveAsPDF(divId) {
+        var element = document.getElementById(divId);
+
+        // Get the transaction number from your page
+        var transactionNumber = document.getElementById('file_name').textContent;
+
+        // Generate the filename using the transaction number
+        var fileName = transactionNumber + '.pdf';
+
+        html2pdf(element, {
+            // margin: 0.5,
+            filename: fileName,
+            image: {
+                type: 'jpeg',
+                quality: 0.98
+            },
+            html2canvas: {
+                // make sure content is rendered properly on the PDF file by using the scale option and fit the content to the page
+                scale: 3,
+            },
+            // make sure the format and orientation are correct
+            jsPDF: {
+                unit: 'in',
+                format: 'letter',
+                orientation: 'portrait'
+            }
+        });
+    }
+
+    function printDiv(divId) {
+        var divContents = document.getElementById(divId).innerHTML;
+
+        // Open a new window with larger dimensions
+        var printWindow = window.open('BrightShoeCare.com', '', 'height=1000,width=1400');
+
+        // Write the head of the document with styles
+        printWindow.document.write('<html><head><title>Cetak Transaksi</title>');
+
+        // Copy all stylesheets and inline styles from the original document
+        var styles = document.querySelectorAll('link[rel="stylesheet"], style[type="text/css"], style');
+        styles.forEach(function(style) {
+            printWindow.document.write(style.outerHTML);
+        });
+
+        printWindow.document.write('</head><body >');
+
+        // Add the content to print
+        printWindow.document.write(divContents);
+
+        printWindow.document.write('</body></html>');
+
+        // Close the document to finish the writing
+        printWindow.document.close();
+
+        // Wait for the content to load before printing
+        printWindow.focus();
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+</script>

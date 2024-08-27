@@ -33,6 +33,31 @@ class Transaksi extends CI_Controller
 		$this->load->view('template/template', $data);
 	}
 
+	// public function cetak($id = null)
+	// {
+	// 	if ($this->session->userdata('masuk') != TRUE) {
+	// 		redirect(base_url(''));
+	// 	};
+
+	// 	$id = str_replace(['-', '_', '~'], ['=', '+', '/'], $id);
+	// 	$id = $this->encryption->decrypt($id);
+	// 	$transaksi = $this->model->get_by($this->table, 'id_transaksi', $id)->row();
+	// 	$detail_transaksi = $this->model->get_by('transaksi_detail1', 'id_transaksi', $id)->result();
+	// 	$pelanggan = $this->model->get_by('pelanggan', 'id', $transaksi->id_pelanggan)->row();
+	// 	$status_pesanan = $this->model->get_by('transaksi_status1', 'id_transaksi', $id)->row();
+
+	// 	$data = [
+	// 		'transaksi'	=> $transaksi,
+	// 		'pelanggan'	=> $pelanggan,
+	// 		'status_pesanan' => $status_pesanan,
+	// 		'detail_transaksi' => $detail_transaksi,
+	// 	];
+
+	// 	$this->pdf->setPaper('A4', 'potrait');
+	// 	$this->pdf->filename = "Detail " . $transaksi->no_transaksi . ".pdf";
+	// 	$this->pdf->load_view('transaksi/cetak', $data);
+	// }
+
 	public function detail($id = null)
 	{
 		if ($this->session->userdata('masuk') != TRUE) {
@@ -45,6 +70,7 @@ class Transaksi extends CI_Controller
 		$detail_transaksi = $this->model->get_by('transaksi_detail1', 'id_transaksi', $id)->result();
 		$pelanggan = $this->model->get_by('pelanggan', 'id', $transaksi->id_pelanggan)->row();
 		$status_pesanan = $this->model->get_by('transaksi_status1', 'id_transaksi', $id)->row();
+		$pembayaran = $this->model->get_by('pembayaran', 'id_transaksi', $id)->row();
 
 		$data = [
 			'content'	=> $this->folder . ('detail'),
@@ -52,6 +78,7 @@ class Transaksi extends CI_Controller
 			'pelanggan'	=> $pelanggan,
 			'status_pesanan' => $status_pesanan,
 			'detail_transaksi' => $detail_transaksi,
+			'pembayaran' => $pembayaran,
 		];
 
 		$this->load->view('template/template', $data);
@@ -149,7 +176,8 @@ class Transaksi extends CI_Controller
 		}
 	}
 
-	public function insert_status($id_transaksi) {
+	public function insert_status($id_transaksi)
+	{
 		$data_detail = array(
 			'id_transaksi' => $id_transaksi,
 			'dibuat' => 1,
@@ -161,6 +189,54 @@ class Transaksi extends CI_Controller
 
 		// Insert data into transaksi_detail1 table
 		$this->model->save("transaksi_status1", $data_detail);
+	}
+
+	public function ubah_status()
+	{
+		if ($this->session->userdata('masuk') != TRUE) {
+			redirect(base_url(''));
+		};
+
+		$id = $this->input->post('id');
+		$status = $this->input->post('status');
+
+		$status_change = [];
+
+		if ($status == 1) {
+			$status_change = ['dibuat' => 1, 'menunggu' => 0, 'proses' => 0, 'siap' => 0, 'selesai' => 0];
+		} elseif ($status == 2) {
+			$status_change = ['dibuat' => 1, 'menunggu' => 1, 'proses' => 0, 'siap' => 0, 'selesai' => 0];
+		} elseif ($status == 3) {
+			$status_change = ['dibuat' => 1, 'menunggu' => 1, 'proses' => 1, 'siap' => 0, 'selesai' => 0];
+		} elseif ($status == 4) {
+			$status_change = ['dibuat' => 1, 'menunggu' => 1, 'proses' => 1, 'siap' => 1, 'selesai' => 0];
+		} elseif ($status == 5) {
+			$status_change = ['dibuat' => 1, 'menunggu' => 1, 'proses' => 1, 'siap' => 1, 'selesai' => 1];
+		}
+
+		$this->model->update('transaksi_status1', 'id_transaksi', $id, $status_change);
+
+
+		$status_pesanan = $this->model->get_by('transaksi_status1', 'id_transaksi', $id)->row();
+
+		$transaksi = $this->model->get_by($this->table, 'id_transaksi', $id)->row();
+		$detail_transaksi = $this->model->get_by('transaksi_detail1', 'id_transaksi', $id)->result();
+		$pelanggan = $this->model->get_by('pelanggan', 'id', $transaksi->id_pelanggan)->row();
+		$status_pesanan = $this->model->get_by('transaksi_status1', 'id_transaksi', $id)->row();
+		$pembayaran = $this->model->get_by('pembayaran', 'id_transaksi', $id)->row();
+
+		$this->session->set_flashdata('flash', '<div class="alert alert-success alert-dismissible fade show" role="alert">Status berhasil di ubah.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+
+		$data = [
+			'content'	=> $this->folder . ('detail'),
+			'transaksi'	=> $transaksi,
+			'pelanggan'	=> $pelanggan,
+			'status_pesanan' => $status_pesanan,
+			'detail_transaksi' => $detail_transaksi,
+			'pembayaran' => $pembayaran,
+		];
+
+		$this->load->view('template/template', $data);
 	}
 
 	public function bayar($id_transaksi = null)
