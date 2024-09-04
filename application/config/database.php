@@ -77,7 +77,7 @@ $online_pw = 'qaAnHSthfHi9xSx';
 $online_username = 'u1437096_admin_brightshoecare';
 $online_db = 'u1437096_brightshoecare_web_db';
 
-$online = true;
+$online = false;
 
 $db['default'] = array(
 	'dsn'	=> '',

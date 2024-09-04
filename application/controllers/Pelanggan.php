@@ -99,16 +99,18 @@ class Pelanggan extends CI_Controller
 
 	public function lacak($noTransaksi = null)
 	{
+
 		$noTransaksi = $this->input->get('no_transaksi');
+		$nama = $this->input->get('nama');
 		
-		if (!$noTransaksi) {
+		if (!$noTransaksi && !$nama) {
 			$data = [
 				'content'	=> $this->folder . ('lacak'),
 				'tampil' 	=> null,
 				'id'		=> '',
 				'section' => 'Lacak Status Laundry'
 			];
-		} else {
+		} else if ($noTransaksi) {
 			$cek = $this->model->get_by('transaksi1', 'no_transaksi', $noTransaksi)->result_array();
 			$jum = count($cek);
 
@@ -134,7 +136,35 @@ class Pelanggan extends CI_Controller
 					'pembayaran' => $pembayaran,
 				];
 			}
+		} else if ($nama) {
+			$cek = $this->model->get_by('pelanggan', 'nama', $nama)->result_array();
+			$jum = count($cek);
+
+			if ($jum < 1) {
+				$data = [
+					'content'	=> $this->folder . ('lacak'),
+					'tampil'	=> 'noData',
+				];
+			} else {
+				$transaksi = $this->model->get_by($this->table, 'id_pelanggan', $cek[0]['id'])->row();
+				$detail_transaksi = $this->model->get_by('transaksi_detail1', 'id_transaksi', $transaksi->id_transaksi)->result();
+				$pelanggan = $this->model->get_by('pelanggan', 'id', $transaksi->id_pelanggan)->row();
+				$status_pesanan = $this ->model->get_by('transaksi_status1', 'id_transaksi', $transaksi->id_transaksi)->row();
+				$pembayaran = $this->model->get_by('pembayaran', 'id_transaksi', $transaksi->id_transaksi)->row();
+			
+				$data = [
+					'content'	=> $this->folder . ('lacak'),
+					'tampil' 	=> 1,
+					'transaksi'	=> $transaksi,
+					'pelanggan'	=> $pelanggan,
+					'status_pesanan' => $status_pesanan,
+					'detail_transaksi' => $detail_transaksi,
+					'pembayaran' => $pembayaran,
+				];
+
+			}
 		}
+
 		$this->load->view($this->layout, $data);
 	}
 

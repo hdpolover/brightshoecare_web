@@ -58,12 +58,29 @@
     <div class="row">
       <div class="col">
         <form method="GET" action="<?= base_url('cari') ?>" autocomplete="off">
+          <!-- Radio Buttons to Select the Type of Search -->
           <div class="form-row">
             <div class="col-12 col-md-9 mb-2 mb-md-0">
-              <input type="text" class="form-control form-control-lg bg-light" placeholder="Masukkan No. Transaksi Anda..." name="no_transaksi">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="search" id="search1" value="no_transaksi" checked>
+                <label class="form-check-label" for="search1">Cari Berdasarkan No. Transaksi</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="search" id="search2" value="nama">
+                <label class="form-check-label" for="search2">Cari Berdasarkan Nama Pelanggan</label>
+              </div>
             </div>
-            <div class="col-12 col-md-2">
-              <button type="submit" class="btn btn-block btn-lg btn-primary">Cari!</button>
+          </div>
+
+          <br>
+
+          <!-- Adjust the Form to Search by Transaction Number or Customer Name/Phone -->
+          <div class="form-row">
+            <div class="col-12 col-md-9 mb-2 mb-md-0">
+              <input type="text" class="form-control" id="searchInput" name="no_transaksi" placeholder="Masukan No. Transaksi" required>
+            </div>
+            <div class="col-12 col-md-3">
+              <button type="submit" class="btn btn-primary btn-block">Lacak</button>
             </div>
           </div>
         </form>
@@ -80,7 +97,7 @@
         <div class="mx-auto pt-4 pb-2">
           <?php if ($tampil == null) : ?>
             <div align="center">
-              <p class="mt-2 font-weight-bold" style="color: #6C7A89">Mulai lacak status cucian sepatu Anda dengan memasukkan No. Transaksi pada form di atas.</p>
+              <p class="mt-2 font-weight-bold" style="color: #6C7A89">Mulai lacak status cucian sepatu Anda dengan memasukkan No. Transaksi atau Nama Pelanggan pada form di atas.</p>
               <img src="<?= base_url('assets/users/') ?>img/Searching.png" width="200rem">
             </div>
           <?php elseif ($tampil == 'noData') : ?>
@@ -218,3 +235,27 @@
 <!-- Bootstrap core JavaScript -->
 <script src="vendor/jquery/jquery.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript to Handle Dynamic Placeholder -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const search1 = document.getElementById('search1');
+    const search2 = document.getElementById('search2');
+    const searchInput = document.getElementById('searchInput');
+
+    // Event listeners for radio buttons
+    search1.addEventListener('change', function() {
+      if (search1.checked) {
+        searchInput.setAttribute('placeholder', 'Masukan No. Transaksi');
+        searchInput.setAttribute('name', 'no_transaksi'); // Change input name to match the selected search type
+      }
+    });
+
+    search2.addEventListener('change', function() {
+      if (search2.checked) {
+        searchInput.setAttribute('placeholder', 'Masukan Nama Pelanggan');
+        searchInput.setAttribute('name', 'nama'); // Change input name to match the selected search type
+      }
+    });
+  });
+</script>
